@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizZone con componentes básicos – React Native</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f5fa;color:#202b3c;line-height:1.6}
+header{background:linear-gradient(135deg,#173b83,#3978d8);color:#fff;text-align:center;padding:42px 20px}
+header h1{font-size:34px;margin:0}header p{margin:8px 0 0}
+main{max-width:1050px;margin:25px auto;padding:0 15px}
+section{background:#fff;padding:25px;margin-bottom:22px;border-radius:12px;box-shadow:0 3px 10px #0000000d}
+h2{color:#2457b8;border-bottom:2px solid #e2eafa;padding-bottom:9px;margin-top:0}
+h3{color:#244a8f;margin-top:22px}
+.tag{display:inline-block;background:#e7efff;color:#204b9b;padding:5px 12px;border-radius:20px;margin:3px;font-size:13px;font-weight:bold}
+.note{background:#eef4ff;border-left:5px solid #2457c5;padding:14px;margin:14px 0;border-radius:6px}
+.warning{background:#fff4df;border-left-color:#d18a17}
+.success{background:#e9f8ef;border-left-color:#239455}
+.wrap{position:relative}
+pre{background:#172033;color:#e5edff;padding:18px;border-radius:9px;overflow-x:auto;font:14px/1.5 Consolas,monospace;margin:12px 0}
+button.cp{position:absolute;right:8px;top:8px;background:#3978d8;color:#fff;border:0;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px}
+p code,li code,td code{background:#edf1f7;color:#173b83;padding:2px 5px;border-radius:4px;font-family:Consolas,monospace}
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px}
+th,td{border:1px solid #dce3ee;padding:9px;text-align:left;vertical-align:top}
+th{background:#eaf1ff}
+.map{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.map div{flex:1 1 140px;background:#e7efff;border:2px solid #9db5e7;border-radius:10px;padding:10px;text-align:center;font-size:14px}
+.chk{background:#e9f8ef;border-left:5px solid #239455;padding:10px 14px;margin:12px 0;border-radius:6px}
+footer{text-align:center;padding:20px;color:#596579}
+@media(max-width:650px){section{padding:16px}header h1{font-size:26px}table{font-size:12px}th,td{padding:6px}}
+@media print{body{background:#fff}section{box-shadow:none;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<header>
+<h1>QUIZZONE – PASO A PASO</h1>
+<p>Proyecto sumativo con componentes básicos de React Native y Expo</p>
+<p>Solo usaremos <b>View, Text y Button</b>, igual que en «Mi primer Quiz»</p>
+</header>
+<main>
+
+<section>
+<span class="tag">Proyecto sumativo</span><span class="tag">5 pantallas</span><span class="tag">View · Text · Button</span>
+<h2>1. ¿Qué vamos a construir?</h2>
+<p>QuizZone es un juego de preguntas con <b>dos temas</b> (Videojuegos y Anime), <b>5 preguntas por tema</b>, puntaje y resultados finales. Es la versión completa de tu práctica «Mi primer Quiz»: aplicamos lo mismo, pero con varias pantallas.</p>
+<div class="map"><div><b>Pantalla 1</b><br>Presentación</div><div><b>Pantalla 2</b><br>Menú de temas</div><div><b>Pantalla 3</b><br>Preguntas de Videojuegos</div><div><b>Pantalla 4</b><br>Preguntas de Anime</div><div><b>Pantalla 5</b><br>Resultado final</div></div>
+<div class="note"><b>Idea clave:</b> una variable de estado llamada <code>pantalla</code> guarda un número del 1 al 5. Con <code>if</code> decidimos qué pantalla dibujar y con <code>Button</code> cambiamos ese número. Así «navegamos» sin librerías extra.</div>
+<div class="note warning"><b>Fase 1 (planificación):</b> antes de programar, diseña tu logotipo en Figma y prepara tu banco de preguntas (5 preguntas con 4 opciones y una correcta). Aquí usamos preguntas de ejemplo: cámbialas por las tuyas.</div>
+</section>
+
+<section>
+<h2>2. Componentes y conceptos básicos</h2>
+<p>Lee esta tabla antes de escribir código. Cada elemento aparecerá en los pasos siguientes.</p>
+<table>
+<tr><th>Elemento</th><th>Concepto</th><th>¿Para qué sirve?</th><th>En QuizZone</th></tr>
+<tr><td><code>View</code></td><td>Contenedor. Es como una caja que agrupa otros elementos. Equivale a un <code>div</code> en HTML.</td><td>Organizar la pantalla y separar elementos.</td><td>Cada pantalla es un View; la tarjeta de la pregunta es otro View.</td></tr>
+<tr><td><code>Text</code></td><td>Muestra texto. En React Native todo texto debe ir dentro de un Text.</td><td>Mostrar títulos, preguntas y mensajes.</td><td>Título «QuizZone», la pregunta, el puntaje.</td></tr>
+<tr><td><code>Button</code></td><td>Botón simple con <code>title</code> (texto) y <code>onPress</code> (acción). Puede usar <code>color</code> y <code>disabled</code>.</td><td>Permitir que el usuario toque y ejecute una acción.</td><td>Comenzar, elegir tema, responder, siguiente.</td></tr>
+<tr><td><code>StyleSheet</code></td><td>Agrupa estilos (colores, tamaños, espacios) en un objeto.</td><td>Dar apariencia ordenada y reutilizable.</td><td><code>styles.titulo</code>, <code>styles.tarjeta</code>.</td></tr>
+<tr><td><code>onPress</code></td><td>Evento: indica qué función se ejecuta al tocar un botón.</td><td>Reaccionar a la acción del usuario.</td><td><code>onPress={() =&gt; setPantalla(2)}</code></td></tr>
+<tr><td><code>useState</code></td><td>Guarda un dato que puede cambiar. Devuelve el valor y una función para cambiarlo. Al cambiar, la pantalla se redibuja.</td><td>Recordar pantalla, tema, puntaje, etc.</td><td><code>const [correctas, setCorrectas] = useState(0)</code></td></tr>
+<tr><td><code>if / else</code></td><td>Condicional: ejecuta un camino u otro según una condición.</td><td>Comprobar respuestas y decidir qué mostrar.</td><td>¿La opción elegida es la correcta?</td></tr>
+<tr><td>Arreglo y objeto</td><td>Un arreglo <code>[ ]</code> es una lista (posiciones 0, 1, 2...). Un objeto <code>{ }</code> agrupa datos con nombre.</td><td>Guardar las preguntas ordenadas.</td><td><code>opciones[0]</code>, <code>pregunta.correcta</code></td></tr>
+<tr><td><code>{ }</code> en JSX</td><td>Dentro del diseño, las llaves permiten insertar variables o expresiones.</td><td>Mostrar valores que cambian.</td><td><code>&lt;Text&gt;Puntaje: {correctas}&lt;/Text&gt;</code></td></tr>
+</table>
+<div class="note">Recuerda: React Native usa <code>View</code> y <code>Text</code>, no <code>div</code> ni <code>p</code>. Todos los componentes se importan desde <code>'react-native'</code>.</div>
+</section>
+
+<section>
+<h2>3. Preparar el proyecto en Expo</h2>
+<script type="text/plain" class="code">npx expo --version
+npx create-expo-app@latest QuizZone
+cd QuizZone
+npx expo start</script>
+<ol>
+<li>Ejecuta los comandos en la terminal de Visual Studio Code.</li>
+<li>Escanea el QR con <b>Expo Go</b> o abre un emulador.</li>
+<li>Abre el archivo principal indicado por el docente y <b>borra su contenido</b> para escribir el tuyo.</li>
+</ol>
+<div class="note warning"><b>Atención:</b> según la plantilla de Expo, el archivo principal puede ser <code>App.js</code> o <code>app/(tabs)/index.tsx</code>. El docente indicará cuál modificar.</div>
+<div class="chk"><b>Evidencia Fase 2:</b> captura del proyecto ejecutándose correctamente.</div>
+</section>
+
+<section>
+<h2>4. Construcción paso a paso</h2>
+<p>Todo el código va en un solo archivo. Sigue el orden de los pasos: imports → datos → <code>App()</code> con estados, funciones y pantallas → estilos.</p>
+
+<h3>Paso 1. Importar lo que necesitamos</h3>
+<p><b>¿Para qué sirve?</b> Trae los componentes y el estado. Si no se importa, React Native no los reconoce.</p>
+<script type="text/plain" class="code">import React, { useState } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';</script>
+
+<h3>Paso 2. Banco de preguntas (datos)</h3>
+<p><b>¿Para qué sirve?</b> Separa el contenido de la lógica. Cada pregunta es un objeto con el texto, un arreglo de 4 <code>opciones</code> y <code>correcta</code>: la posición de la respuesta correcta. <b>Se cuenta desde 0</b>: A=0, B=1, C=2, D=3. Pega esto debajo de los imports.</p>
+<script type="text/plain" class="code">const videojuegos = [
+  { pregunta: '¿Cuál es el personaje principal de The Legend of Zelda?',
+    opciones: ['Link', 'Mario', 'Sonic', 'Pikachu'], correcta: 0 },
+  { pregunta: '¿Qué empresa creó a Mario?',
+    opciones: ['Sega', 'Nintendo', 'Sony', 'Microsoft'], correcta: 1 },
+  { pregunta: '¿En qué juego existen los Creepers y se construye con bloques?',
+    opciones: ['Fortnite', 'Tetris', 'Minecraft', 'Among Us'], correcta: 2 },
+  { pregunta: '¿Quién es la mascota clásica de Sega?',
+    opciones: ['Kirby', 'Pac-Man', 'Crash', 'Sonic'], correcta: 3 },
+  { pregunta: '¿Qué princesa suele rescatar Mario?',
+    opciones: ['Peach', 'Zelda', 'Samus', 'Lara'], correcta: 0 },
+];
+
+const anime = [
+  { pregunta: '¿Quién es el autor de Naruto?',
+    opciones: ['Eiichiro Oda', 'Masashi Kishimoto', 'Akira Toriyama', 'Hajime Isayama'], correcta: 1 },
+  { pregunta: '¿Quién es el protagonista de Dragon Ball?',
+    opciones: ['Vegeta', 'Gohan', 'Goku', 'Krilin'], correcta: 2 },
+  { pregunta: '¿Quién quiere ser el Rey de los Piratas en One Piece?',
+    opciones: ['Zoro', 'Sanji', 'Usopp', 'Luffy'], correcta: 3 },
+  { pregunta: '¿Qué estudio creó El viaje de Chihiro?',
+    opciones: ['Studio Ghibli', 'Madhouse', 'Bones', 'Toei'], correcta: 0 },
+  { pregunta: '¿Quién es el protagonista de Attack on Titan?',
+    opciones: ['Levi', 'Eren', 'Armin', 'Mikasa'], correcta: 1 },
+];</script>
+
+<h3>Paso 3. Crear App y los estados con useState</h3>
+<p><b>¿Para qué sirve?</b> Es la «memoria» de la app. Cada <code>useState</code> guarda un dato; cuando llamas a su función <code>set...</code>, la pantalla se actualiza.</p>
+<script type="text/plain" class="code">export default function App() {
+  const [pantalla, setPantalla] = useState(1);      // pantalla visible (1 a 5)
+  const [tema, setTema] = useState(null);           // 'videojuegos' o 'anime'
+  const [indice, setIndice] = useState(0);          // pregunta actual (0 a 4)
+  const [seleccion, setSeleccion] = useState(null); // opción tocada (null = sin responder)
+  const [correctas, setCorrectas] = useState(0);    // aciertos = puntaje
+  const [incorrectas, setIncorrectas] = useState(0);
+
+  // Elegimos el arreglo de preguntas según el tema (condicional)
+  let preguntas = [];
+  if (tema === 'videojuegos') {
+    preguntas = videojuegos;
+  } else if (tema === 'anime') {
+    preguntas = anime;
+  }
+  const actual = preguntas[indice]; // pregunta que se muestra
+
+  // ← Los pasos 4 a 8 se pegan aquí, uno debajo de otro
+}</script>
+<div class="note">Todo lo de los pasos 4 a 8 va <b>dentro</b> de <code>App()</code>. El paso 9 (estilos) va <b>fuera</b>, al final del archivo.</div>
+
+<h3>Paso 4. Funciones de la lógica del juego</h3>
+<p><b>¿Para qué sirve?</b> Son las acciones que ejecutarán los botones con <code>onPress</code>:</p>
+<ul>
+<li><code>elegirTema</code>: guarda el tema, reinicia contadores y abre la pantalla 3 o 4.</li>
+<li><code>responder</code>: compara la opción tocada con la correcta (<code>if / else</code>) y actualiza el puntaje.</li>
+<li><code>siguiente</code>: avanza a la siguiente pregunta o, si era la última, muestra los resultados.</li>
+<li><code>volverAJugar</code>: reinicia todo y vuelve al menú de temas.</li>
+</ul>
+<script type="text/plain" class="code">  function elegirTema(t) {
+    setTema(t);
+    setIndice(0);
+    setSeleccion(null);
+    setCorrectas(0);
+    setIncorrectas(0);
+    if (t === 'videojuegos') {
+      setPantalla(3);
+    } else {
+      setPantalla(4);
+    }
+  }
+
+  function responder(i) {
+    setSeleccion(i); // guardamos qué opción tocó
+    if (i === actual.correcta) {
+      setCorrectas(correctas + 1);
+    } else {
+      setIncorrectas(incorrectas + 1);
+    }
+  }
+
+  function siguiente() {
+    if (indice < preguntas.length - 1) {
+      setIndice(indice + 1);
+      setSeleccion(null);
+    } else {
+      setPantalla(5);
+    }
+  }
+
+  function volverAJugar() {
+    setTema(null);
+    setIndice(0);
+    setSeleccion(null);
+    setCorrectas(0);
+    setIncorrectas(0);
+    setPantalla(2);
+  }</script>
+<div class="note success"><b>¿Cómo evitamos sumar dos veces?</b> En el paso 6 los botones de respuesta llevan <code>disabled={seleccion !== null}</code>: después de responder quedan desactivados.</div>
+
+<h3>Paso 5. Pantallas 1 y 2: presentación y temas</h3>
+<p><b>¿Para qué sirve?</b> Un <code>if (pantalla === 1)</code> dibuja la presentación; el botón «Comenzar» cambia <code>pantalla</code> a 2. En la pantalla 2 cada botón llama a <code>elegirTema</code>. Cada <code>Button</code> va dentro de un <code>View</code> con estilo <code>espacio</code>, porque Button no tiene margen propio.</p>
+<script type="text/plain" class="code">  if (pantalla === 1) {
+    return (
+      <View style={styles.contenedor}>
+        <Text style={styles.logo}>🎮</Text>
+        <Text style={styles.titulo}>QuizZone</Text>
+        <Text style={styles.subtitulo}>¡Demuestra cuánto sabes!</Text>
+        <Button title="Comenzar" onPress={() => setPantalla(2)} />
+      </View>
+    );
+  }
+
+  if (pantalla === 2) {
+    return (
+      <View style={styles.contenedor}>
+        <Text style={styles.titulo}>Selecciona un tema</Text>
+        <View style={styles.espacio}>
+          <Button title="🎮 Videojuegos" onPress={() => elegirTema('videojuegos')} />
+        </View>
+        <View style={styles.espacio}>
+          <Button title="🌸 Anime" onPress={() => elegirTema('anime')} />
+        </View>
+        <View style={styles.espacio}>
+          <Button title="Atrás" color="#7a869a" onPress={() => setPantalla(1)} />
+        </View>
+      </View>
+    );
+  }</script>
+<div class="chk"><b>Comprueba:</b> guarda y verifica que «Comenzar» abra el menú y que «Atrás» regrese. (Aún no existen las pantallas 3 a 5, por eso la app puede fallar al elegir un tema: es normal hasta el paso 6.)</div>
+
+<h3>Paso 6. Pantallas 3 y 4: preguntas</h3>
+<p><b>¿Para qué sirve?</b> Es la pantalla del juego. Como las pantallas 3 (Videojuegos) y 4 (Anime) se ven igual, usan el mismo bloque: <code>preguntas</code> ya contiene las del tema elegido.</p>
+<ul>
+<li>Cada botón muestra una opción con <code>actual.opciones[0]</code>, <code>[1]</code>, <code>[2]</code>, <code>[3]</code> y llama a <code>responder</code> con su posición.</li>
+<li>Un <code>if / else</code> prepara el <code>mensaje</code> de retroalimentación.</li>
+<li><code>{seleccion !== null &amp;&amp; ( ... )}</code> significa: «muestra esto solo si ya respondió». Así el mensaje y el botón «Siguiente» aparecen después de responder.</li>
+</ul>
+<script type="text/plain" class="code">  if (pantalla === 3 || pantalla === 4) {
+    let mensaje = '';
+    if (seleccion !== null) {
+      if (seleccion === actual.correcta) {
+        mensaje = '¡Correcto! 🎉';
+      } else {
+        mensaje = 'Incorrecto. La respuesta era: ' + actual.opciones[actual.correcta];
+      }
+    }
+
+    return (
+      <View style={styles.contenedor}>
+        <Text style={styles.tema}>
+          {tema === 'videojuegos' ? '🎮 Videojuegos' : '🌸 Anime'}
+        </Text>
+        <Text style={styles.contador}>
+          Pregunta {indice + 1} de {preguntas.length} · Puntaje: {correctas}
+        </Text>
+
+        <View style={styles.tarjeta}>
+          <Text style={styles.pregunta}>{actual.pregunta}</Text>
+        </View>
+
+        <View style={styles.espacio}>
+          <Button title={'A. ' + actual.opciones[0]}
+            onPress={() => responder(0)} disabled={seleccion !== null} />
+        </View>
+        <View style={styles.espacio}>
+          <Button title={'B. ' + actual.opciones[1]}
+            onPress={() => responder(1)} disabled={seleccion !== null} />
+        </View>
+        <View style={styles.espacio}>
+          <Button title={'C. ' + actual.opciones[2]}
+            onPress={() => responder(2)} disabled={seleccion !== null} />
+        </View>
+        <View style={styles.espacio}>
+          <Button title={'D. ' + actual.opciones[3]}
+            onPress={() => responder(3)} disabled={seleccion !== null} />
+        </View>
+
+        {seleccion !== null && (
+          <View>
+            <Text style={seleccion === actual.correcta ? styles.bien : styles.mal}>
+              {mensaje}
+            </Text>
+            <Button
+              title={indice < preguntas.length - 1 ? 'Siguiente' : 'Ver resultados'}
+              color="#239455"
+              onPress={siguiente}
+            />
+          </View>
+        )}
+      </View>
+    );
+  }</script>
+<div class="chk"><b>Comprueba:</b> responde bien y mal; el mensaje debe cambiar, los botones deben quedar desactivados y el puntaje debe subir solo con aciertos.</div>
+
+<h3>Paso 7. Pantalla 5: resultados</h3>
+<p><b>¿Para qué sirve?</b> Muestra el puntaje final, los aciertos y errores, y un mensaje que depende del resultado (condicionales). «Volver a jugar» ejecuta <code>volverAJugar</code>. Esta pantalla va al final y no lleva <code>if</code>: se muestra cuando no se cumplió ninguna de las anteriores.</p>
+<script type="text/plain" class="code">  let mensajeFinal = '';
+  if (correctas >= 4) {
+    mensajeFinal = '¡Excelente! Tienes grandes conocimientos 🏆';
+  } else if (correctas >= 3) {
+    mensajeFinal = '¡Muy bien! Casi lo logras 👏';
+  } else {
+    mensajeFinal = '¡Sigue practicando! 💪';
+  }
+
+  return (
+    <View style={styles.contenedor}>
+      <Text style={styles.logo}>🏆</Text>
+      <Text style={styles.titulo}>¡Juego terminado!</Text>
+
+      <View style={styles.tarjeta}>
+        <Text style={styles.etiqueta}>Tu puntaje</Text>
+        <Text style={styles.puntaje}>{correctas} / {preguntas.length}</Text>
+      </View>
+
+      <View style={styles.fila}>
+        <View style={styles.mini}>
+          <Text style={styles.etiqueta}>Correctas</Text>
+          <Text style={styles.miniValor}>{correctas}</Text>
+        </View>
+        <View style={styles.mini}>
+          <Text style={styles.etiqueta}>Incorrectas</Text>
+          <Text style={styles.miniValor}>{incorrectas}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.final}>{mensajeFinal}</Text>
+      <Button title="Volver a jugar" onPress={volverAJugar} />
+    </View>
+  );
+}   // ← llave que cierra la función App()</script>
+
+<h3>Paso 8. Estilos con StyleSheet</h3>
+<p><b>¿Para qué sirve?</b> Da identidad visual. Va <b>fuera</b> de <code>App()</code>. Propiedades usadas: <code>backgroundColor</code> (fondo), <code>color</code> (texto), <code>fontSize</code> y <code>fontWeight</code> (letra), <code>padding</code> (espacio interior), <code>margin</code> (espacio exterior), <code>borderRadius</code> (esquinas) y Flexbox (<code>flex</code>, <code>justifyContent</code>, <code>flexDirection</code>) para ordenar.</p>
+<script type="text/plain" class="code">const styles = StyleSheet.create({
+  contenedor: { flex: 1, justifyContent: 'center', padding: 25, backgroundColor: '#eef4ff' },
+  logo: { fontSize: 64, textAlign: 'center' },
+  titulo: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: '#173b83', marginBottom: 10 },
+  subtitulo: { fontSize: 16, textAlign: 'center', color: '#596579', marginBottom: 25 },
+  espacio: { marginBottom: 12 },
+  tema: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', color: '#2457c5' },
+  contador: { fontSize: 14, textAlign: 'center', color: '#596579', marginVertical: 8 },
+  tarjeta: { backgroundColor: '#ffffff', padding: 18, borderRadius: 12, marginBottom: 16 },
+  pregunta: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#202b3c' },
+  bien: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', color: '#239455', marginVertical: 10 },
+  mal: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', color: '#c33c3c', marginVertical: 10 },
+  etiqueta: { fontSize: 14, textAlign: 'center', color: '#596579' },
+  puntaje: { fontSize: 42, fontWeight: 'bold', textAlign: 'center', color: '#2457c5' },
+  fila: { flexDirection: 'row', justifyContent: 'space-between' },
+  mini: { width: '48%', backgroundColor: '#ffffff', padding: 14, borderRadius: 12 },
+  miniValor: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', color: '#202b3c' },
+  final: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginVertical: 18 },
+});</script>
+<div class="note success"><b>Resultado:</b> tu archivo queda ordenado así: imports → <code>videojuegos</code> y <code>anime</code> → <code>App()</code> (estados, funciones, pantallas 1 a 5) → <code>styles</code>.</div>
+</section>
+
+<section>
+<h2>5. Pruebas de funcionamiento</h2>
+<table>
+<tr><th>Prueba</th><th>Resultado esperado</th></tr>
+<tr><td>Pulsar «Comenzar»</td><td>Abre el menú de temas</td></tr>
+<tr><td>Elegir Videojuegos y luego Anime</td><td>Cada tema muestra sus propias preguntas</td></tr>
+<tr><td>Responder correctamente</td><td>Mensaje verde y puntaje +1</td></tr>
+<tr><td>Responder incorrectamente</td><td>Mensaje rojo con la respuesta correcta; el puntaje no cambia</td></tr>
+<tr><td>Intentar tocar otra opción en la misma pregunta</td><td>Los botones están desactivados; el puntaje no se incrementa dos veces</td></tr>
+<tr><td>Llegar a la pregunta 5</td><td>El botón dice «Ver resultados» y abre la pantalla 5</td></tr>
+<tr><td>Revisar resultados</td><td>Correctas + incorrectas = 5 y coinciden con tus respuestas</td></tr>
+<tr><td>«Volver a jugar»</td><td>Regresa al menú y el puntaje y las preguntas se reinician</td></tr>
+</table>
+<h3>Errores comunes</h3>
+<ul>
+<li><b>Pantalla roja de error:</b> revisa llaves <code>{ }</code> y paréntesis; los pasos 4 a 7 deben estar dentro de <code>App()</code>.</li>
+<li><b>«Text strings must be rendered within a &lt;Text&gt;»:</b> hay texto suelto fuera de un <code>Text</code>.</li>
+<li><b>La respuesta correcta no coincide:</b> revisa el número de <code>correcta</code> (empieza en 0).</li>
+<li><b>El tema no cambia las preguntas:</b> el texto debe ser exactamente <code>'videojuegos'</code> o <code>'anime'</code>.</li>
+<li><b>Los cambios no aparecen:</b> guarda con Ctrl+S o recarga con <code>r</code> en la terminal de Expo.</li>
+</ul>
+</section>
+
+<section>
+<h2>6. Evidencias y sustentación</h2>
+<ol>
+<li>Logotipo en Figma y banco de preguntas.</li>
+<li>Captura del proyecto ejecutándose y capturas de las cinco pantallas.</li>
+<li>Lista de comprobación de pruebas (tabla anterior) y la aplicación funcionando.</li>
+<li>Código fuente del proyecto.</li>
+</ol>
+<h3>Preguntas que debes saber responder</h3>
+<ul>
+<li><b>¿Qué componentes usaste y para qué sirve cada uno?</b> View (contenedor), Text (texto), Button (acción al tocar).</li>
+<li><b>¿Qué hace useState?</b> Guarda un dato que cambia; al actualizarlo con <code>set...</code>, la pantalla se redibuja.</li>
+<li><b>¿Qué hace onPress?</b> Ejecuta una función cuando se toca el botón.</li>
+<li><b>¿Cómo validas una respuesta?</b> Un <code>if</code> compara la opción tocada con <code>actual.correcta</code>.</li>
+<li><b>¿Cómo evitas sumar dos veces?</b> Con <code>disabled={seleccion !== null}</code> los botones se desactivan tras responder.</li>
+<li><b>¿Cómo navegas entre pantallas?</b> Con la variable <code>pantalla</code> y condicionales <code>if</code>.</li>
+<li><b>Demostración en vivo:</b> resuelve una pregunta y explica qué estado cambió.</li>
+</ul>
+<div class="note success"><b>Reto opcional:</b> agrega un tercer tema con su propio botón en la pantalla 2 y un nuevo arreglo de preguntas.</div>
+</section>
+
+</main>
+<footer>Guía QuizZone · Aplicaciones Móviles · Segundo BGU</footer>
+<script>
+document.querySelectorAll('script.code').forEach(function(s){
+  var w=document.createElement('div');w.className='wrap';
+  var p=document.createElement('pre');p.textContent=s.textContent.replace(/^\n/,'');
+  var b=document.createElement('button');b.className='cp';b.textContent='Copiar';
+  b.onclick=function(){
+    try{navigator.clipboard.writeText(p.textContent);b.textContent='¡Copiado!';}
+    catch(e){var r=document.createRange();r.selectNodeContents(p);var g=getSelection();g.removeAllRanges();g.addRange(r);b.textContent='Seleccionado';}
+    setTimeout(function(){b.textContent='Copiar'},1500);
+  };
+  w.appendChild(p);w.appendChild(b);s.replaceWith(w);
+});
+</script>
+</body>
+</html>
